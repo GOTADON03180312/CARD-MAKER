@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rampart Clash カードプレビュー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .form-container {
+      width: 300px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .form-container input,
+    .form-container textarea,
+    .form-container select,
+    .form-container button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      width: 300px;
+      height: 420px;
+      position: relative;
+      border: 2px solid #000;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .name {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      font-weight: bold;
+      font-size: 20px;
+      text-align: center;
+      padding: 4px 0;
+      box-sizing: border-box;
+      z-index: 2;
+    }
+
+    .cost {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      background: white;
+      padding: 2px 6px;
+      font-size: 18px;
+      z-index: 2;
+    }
+
+    .power {
+      position: absolute;
+      bottom: 4px;
+      right: 6px;
+      background: white;
+      padding: 2px 6px;
+      font-size: 18px;
+      z-index: 2;
+    }
+
+    .crash {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%) rotate(180deg);
+      background: white;
+      padding: 2px 6px;
+      font-size: 18px;
+      z-index: 2;
+    }
+
+    /* 変更部分: テキストボックスの背景を上に伸ばす */
+    .text-box {
+      position: absolute;
+      bottom: 40px;
+      left: 10px;
+      right: 10px;
+      height: 150px; /* 高さを増加 */
+      background: white;
+      padding: 8px;
+      font-size: 14px;
+      overflow: hidden;
+      white-space: pre-wrap;
+      text-align: left;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align: center;">Rampart Clash カードプレビュー</h2>
+
+  <div class="container">
+    <div class="form-container">
+      <label>カード名：<input type="text" id="input-name" placeholder="カード名" /></label>
+      <label>コスト：<input type="number" id="input-cost" min="0" max="10" /></label>
+      <label>パワー（0=M）：<input type="number" id="input-power" min="0" /></label>
+      <label>クラッシュポイント：<input type="number" id="input-crash" min="0" max="10" /></label>
+      <label>テキスト効果：<textarea id="input-text" rows="6" style="height: 120px;"></textarea></label>
+      <label>属性：
+        <select id="input-attribute">
+          <option value="none">無</option>
+          <option value="fire">火</option>
+          <option value="water">水</option>
+          <option value="grass">草</option>
+          <option value="light">光</option>
+          <option value="dark">闇</option>
+        </select>
+      </label>
+      <button onclick="updateCard()">カードを更新</button>
+      <button onclick="downloadCard()">PNGでダウンロード</button>
+    </div>
+
+    <div class="card" id="card">
+      <div class="name" id="card-name">カード名</div>
+      <div class="cost" id="card-cost">①</div>
+      <div class="power" id="card-power">5</div>
+      <div class="crash" id="card-crash">②</div>
+      <div class="text-box" id="card-text">ここにテキスト</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <script>
+    const card = document.getElementById("card");
+    const name = document.getElementById("card-name");
+    const cost = document.getElementById("card-cost");
+    const power = document.getElementById("card-power");
+    const crash = document.getElementById("card-crash");
+    const text = document.getElementById("card-text");
+
+    function toCircledNumber(num) {
+      const circled = ['⓪','①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
+      return circled[num] ?? num;
+    }
+
+    function getBackgroundColor(attribute) {
+      switch (attribute) {
+        case 'fire': return '#f8a29e';
+        case 'water': return '#9ed4f8';
+        case 'grass': return '#a6e7a1';
+        case 'light': return '#fff3a6';
+        case 'dark': return '#b29aff';
+        case 'none': return '#cccccc';
+        default: return '#ffffff';
+      }
+    }
+
+    function updateCard() {
+      const inputName = document.getElementById('input-name').value;
+      const inputCost = +document.getElementById('input-cost').value;
+      const inputPower = +document.getElementById('input-power').value;
+      const inputCrash = +document.getElementById('input-crash').value;
+      const inputText = document.getElementById('input-text').value;
+      const inputAttr = document.getElementById('input-attribute').value;
+
+      name.textContent = inputName || 'カード名';
+      cost.textContent = toCircledNumber(inputCost);
+      power.textContent = inputPower === 0 ? 'M' : inputPower;
+      crash.textContent = toCircledNumber(inputCrash);
+      text.textContent = inputText || 'ここにテキスト';
+      card.style.background = getBackgroundColor(inputAttr);
+    }
+
+    function downloadCard() {
+  const inputName = document.getElementById('input-name').value.trim();
+  const safeName = inputName.replace(/[\\/:*?"<>|]/g, '') || 'RampartCard';
+  html2canvas(card).then(canvas => {
+    const link = document.createElement("a");
+    link.download = `${safeName}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+}
+
+  </script>
+</body>
+</html>
